@@ -8,11 +8,37 @@ This project implements a numerical solution to the 2D Heat Equation using the F
 
 The heat equation models the distribution of heat in a given region over time. In this project, we focus on solving the two-dimensional form, where the temperature in a domain evolves based on spatial and temporal variations. This equation is widely used in physics and engineering.
 
+The 2D heat equation is given by:
+
+$$
+\frac{\partial u}{\partial t} = \alpha \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right)
+$$
+
 ---
 
 ## Numerical Approximation with Finite Differences
 
-We approximate the solution to the heat equation using finite differences. This involves discretizing the time and spatial dimensions into a grid and updating the temperature at each point based on its neighbors. This discretization converts the continuous problem into a system of equations that can be solved numerically.
+To solve this equation numerically, we approximate the derivatives using finite differences:
+
+**Second derivative with respect to x:**
+
+$$
+\frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i+1,j} - 2u_{i,j} + u_{i-1,j}}{\Delta x^2}
+$$
+
+**Second derivative with respect to y:**
+
+$$
+\frac{\partial^2 u}{\partial y^2} \approx \frac{u_{i,j+1} - 2u_{i,j} + u_{i,j-1}}{\Delta y^2}
+$$
+
+**Time derivative:**
+
+$$
+\frac{\partial u}{\partial t} \approx \frac{u_{i,j}^{n+1} - u_{i,j}^{n}}{\Delta t}
+$$
+
+By substituting these approximations into the heat equation, we obtain a discrete update formula that can be implemented in the simulation.
 
 ---
 
@@ -41,34 +67,32 @@ The parallel implementation significantly reduced computation time compared to t
 
 ---
 
+
 ## How to Run the Code
 
 ### Step 1: Compile the Code
-Ensure you have an MPI compiler installed. Compile the C++ program using:
+Make sure you have a C++ compiler installed that supports OpenMP (e.g., g++).
+
+To compile the C++ code with OpenMP support, use the following command:
 
 ```bash
-mpicxx heat_equation.cpp -o heat_solver
-```
-### Step 2: Install Dependencies
-Make sure to install any required dependencies such as MPI. If you are using Ubuntu, you can install the required packages using:
-```bash
-sudo apt update
-sudo apt install mpich
-```
-### Step 3: Execute the Program
-1. Open your terminal in the directory where the compiled program (`heat_solver`) is located.
-2. Use the `mpirun` command to run the program with the desired number of processes. For example, to run with 4 processes, execute the following:
+g++ -o heat_solver heat_equation.cpp -fopenmp -lm
 
-   ```bash
-   mpirun -np 4 ./heat_solver
-   ```
-### Step 4: Adjust Parameters and Analyze Results
-Modify simulation parameters in the C++ code to observe how they affect the behavior and performance of the simulation. Below are the key parameters you can adjust:
+```
+### Step 2: Run the Program
+Once compiled, execute the program using the following command:
+```bash
+./heat_solver
+```
+### Step 3: Adjust Parameters and Analyze Results
+Modify simulation parameters in the C++ code to observe how they affect the simulation's behavior and performance:
 ```cpp
-int Nx = 400;
-int Ny = 400;
-int Nt = 200000;
-double alpha = 0.5;
+int Nx = 200;    // Grid points in the x-direction
+int Ny = 200;    // Grid points in the y-direction
+int Nt = 100000; // Number of time steps
+double alpha = 1.0; // Thermal diffusivity constant
 ```
-By adjusting these parameters, you can observe how the simulation behaves with higher resolution grids or larger time steps. After running the program, analyze the results to evaluate the performance and accuracy of the simulation.
+- **Grid Resolution (Nx, Ny)**: Higher values increase accuracy but require more computation time.
+- **Time Steps (Nt)** : Increasing Nt simulates a longer time period. Ensure numerical stability by checking the CFL condition (rx + ry < 0.5).
+- **Thermal Diffusivity (alpha)** : Adjusting this constant changes the rate of heat propagation.
 
